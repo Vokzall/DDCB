@@ -1,0 +1,6 @@
+workdir
+DDK
+.settings
+.project
+.log
+.library_mapping.xml
