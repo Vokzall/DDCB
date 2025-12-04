@@ -7,7 +7,7 @@
 // Module Name: cascade_delays
 // Project Name: DDCB   
 module cascade_delays
-#(Nmbr_cascades = 4)
+#(Nmbr_cascades = 8)
 (
     input   logic                       in,
     input   logic [Nmbr_cascades-1:0]   select,
