@@ -7,7 +7,8 @@ xrun \
 -gui \
 -access +rwc \
 -sv \
-../src/*IDELAYE3*v \
-../sim/*IDELAYE3*v \
+../sim/* \
+../synth/out/*v \
 -dumpactivemacros \
 -clean \
+-v ../DDK/verilog/* 

@@ -229,9 +229,9 @@ for {set config 0} {$config < $total_configs} {incr config} {
 # Write detailed results table
 puts $tbl_fh "RISE TRANSITION ANALYSIS"
 puts $tbl_fh "=================================================================================="
-puts $tbl_fh "| Cfg | Select | Total | Buffers  | Muxes    | Logic/Wire | Buf/Stg | Active |"
-puts $tbl_fh "|     | Pattern| Delay | Cnt | Dly| Cnt | Dly| Delay      | (ps)    | Stages |"
-puts $tbl_fh "|     |        | (ps)  |     |(ps)|     |(ps)| (ps)       |         |        |"
+puts $tbl_fh "| Cfg | Select  | Total | Buffers  | Muxes    | Logic/Wire | Buf/Stg | Active |"
+puts $tbl_fh "|     | Pattern | Delay | Cnt | Dly| Cnt | Dly| Delay      | (ps)    | Stages |"
+puts $tbl_fh "|     |         | (ps)  |     |(ps)|     |(ps)| (ps)       |         |        |"
 puts $tbl_fh "=================================================================================="
 
 for {set config 0} {$config < $total_configs} {incr config} {
@@ -249,7 +249,7 @@ for {set config 0} {$config < $total_configs} {incr config} {
         }
     }
     
-    puts $tbl_fh [format "| %3d | %6s | %5s | %3s | %3s| %3s | %3s| %10s | %7.1f | %6s |" \
+    puts $tbl_fh [format "| %3d | %6s| %5s | %3s | %3s| %3s | %3s| %10s | %7.1f | %6s |" \
         $config $select_pattern $total $buf_cnt $buf_dly $mux_cnt $mux_dly $other_delay $buf_per_stage $active_stages]
 }
 
@@ -257,9 +257,9 @@ puts $tbl_fh "==================================================================
 puts $tbl_fh ""
 puts $tbl_fh "FALL TRANSITION ANALYSIS"
 puts $tbl_fh "=================================================================================="
-puts $tbl_fh "| Cfg | Select | Total | Buffers  | Muxes    | Logic/Wire | Buf/Stg | Active |"
-puts $tbl_fh "|     | Pattern| Delay | Cnt | Dly| Cnt | Dly| Delay      | (ps)    | Stages |"
-puts $tbl_fh "|     |        | (ps)  |     |(ps)|     |(ps)| (ps)       |         |        |"
+puts $tbl_fh "| Cfg | Select  | Total | Buffers  | Muxes    | Logic/Wire | Buf/Stg | Active |"
+puts $tbl_fh "|     | Pattern | Delay | Cnt | Dly| Cnt | Dly| Delay      | (ps)    | Stages |"
+puts $tbl_fh "|     |         | (ps)  |     |(ps)|     |(ps)| (ps)       |         |        |"
 puts $tbl_fh "=================================================================================="
 
 for {set config 0} {$config < $total_configs} {incr config} {
@@ -277,7 +277,7 @@ for {set config 0} {$config < $total_configs} {incr config} {
         }
     }
     
-    puts $tbl_fh [format "| %3d | %6s | %5s | %3s | %3s| %3s | %3s| %10s | %7.1f | %6s |" \
+    puts $tbl_fh [format "| %3d | %6s| %5s | %3s | %3s| %3s | %3s| %10s | %7.1f | %6s |" \
         $config $select_pattern $total $buf_cnt $buf_dly $mux_cnt $mux_dly $other_delay $buf_per_stage $active_stages]
 }
 
