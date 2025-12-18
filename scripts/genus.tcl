@@ -3,7 +3,8 @@ source ../scripts/setup_env.tcl
 
 # =============================================
 read_libs $design(LIB_FILES)
-# read_lefs $design(LEF_FILES)
+read_physical -lef $design(LEF_FILES)
+read_qrc $design(QRC_FILE)
 # =============================================
 
 # =====================================================
@@ -13,7 +14,11 @@ puts "\n=========================================="
 puts "Step 1: Reading RTL and Elaborating Design"
 puts "=========================================="
 # Прочитать RTL
-read_hdl -sv $design(VERILOG_FILES)
+read_hdl -sv $design(VERILOG_FILES) -define Nmbr_cascades=$design(Nmbr_cascades)
+
+
+
+
 
 # Elaborate
 elaborate $design(DESIGN)

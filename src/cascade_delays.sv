@@ -7,9 +7,11 @@
 // Project Name: DDCB   
 
 `timescale 1ns/1ps
-
+`ifndef Nmbr_cascades
+    `define Nmbr_cascades 4
+`endif
 module cascade_delays
-#(Nmbr_cascades = 6)
+#(Nmbr_cascades = `Nmbr_cascades)
 (
     input   logic                       in,
     input   logic [Nmbr_cascades-1:0]   select,

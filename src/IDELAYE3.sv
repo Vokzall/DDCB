@@ -67,7 +67,7 @@ module IDELAYE3 #(
     
     always_ff @(posedge CLK or posedge RST) begin : COUNTER_PROC
         if (RST) select <= `Nmbr_cascades'd0;
-        else if (CE) select <= (INC) ? {select[`Nmbr_cascades-2:0], 1'b1} : {1'b0, select[`Nmbr_cascades-1:1]};
+        else if (CE && !EN_VTC) select <= (INC) ? {select[`Nmbr_cascades-2:0], 1'b1} : {1'b0, select[`Nmbr_cascades-1:1]};
     end : COUNTER_PROC
     
 

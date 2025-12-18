@@ -17,7 +17,7 @@ set design(LEF_PATH)        "../DDK/lefs"
 set design(SDC_PATH)        "../synth/constraints"
 set design(MMMC_PATH)       "./mmmc"
 set design(REPORT_DIR)      "../reports"
-set design(QRC_PATH)        "../DDK"
+set design(QRC_PATH)        "../DDK/tech/CMAX"
 set design(Nmbr_cascades)   4
 
 # File Lists
@@ -34,8 +34,8 @@ set design(LIB_FILES) [list \
 
 # LEF Files
 set design(LEF_FILES) [list \
-    "${design(LEF_PATH)}/tech.lef" \
-    "${design(LEF_PATH)}/stdcells.lef" \
+    "${design(LEF_PATH)}/scc28n_1p10m_8ic_2tmc_alpa2.lef" \
+    "${design(LEF_PATH)}/scc28nhkcp_hsc30p140_rvt.lef" \
 ]
 
 # SDC File
@@ -45,7 +45,7 @@ set design(SDC_FILE) "${design(SDC_PATH)}/cascade_delays.sdc"
 set design(MMMC_FILE) "${design(MMMC_PATH)}/view_definition.tcl"
 
 # QRC File
-set design(QRC_FILE) "${design(QRC_PATH)}/tech.qrc"
+set design(QRC_FILE) "${design(QRC_PATH)}/qrcTechFile"
 
 # =============================================
 # Optional: Create directories if they don't exist

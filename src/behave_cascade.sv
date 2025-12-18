@@ -1,38 +1,33 @@
-// 1. 000000 (0x00)
-// 2. 000001 (0x01)
-// 3. 000011 (0x03)
-// 4. 000111 (0x07)
-// 5. 001111 (0x0F)
-// 6. 011111 (0x1F)
-// 7. 111111 (0x3F)
+// 1. 0000 (0x0)
+// 2. 0010 (0x2)
+// 3. 0011 (0x3)
+// 4. 0111 (0x7)
+// 5. 1111 (0xF)
 
 // Rise:
-// [170, 184, 198, 211, 225, 239, 252] ps
+// [169, 188, 208, 228, 248] пс
 
 // Fall:
-// [165, 177, 190, 202, 215, 227, 240] ps
+// [161, 179, 196, 214, 232] пс
 
 
 
 `timescale 1ns / 1ps
-`define GLS
-module cascade_delays (
+
+module cascade_delays_behavioral(
     input wire in,
-    input wire [5:0] select,
+    input wire [3:0] select,
     output reg out
 );
 
     // Внутренние сигналы для отслеживания задержек
-    reg [5:0] delay_in;
-    reg [4:0] delay_out;
+    reg [3:0] delay_in;
+    reg [2:0] delay_out;
     
     // Stage 0: Buffer delay + Mux delay
-    // Buffer: I -> delay_in[0], delays: 15ps rise, 14ps fall
+    // Buffer: I -> delay_in[0], delays: 21ps (both rise and fall)
     always @(in) begin
-        if (in == 1'b1)
-            delay_in[0] <= #0.015 in;  // Rise
-        else
-            delay_in[0] <= #0.014 in;  // Fall
+        delay_in[0] <= #0.021 in;
     end
     
     // Mux: I0=in (direct), I1=delay_in[0] (delayed), S=select[0], Z=delay_out[0]
@@ -40,121 +35,94 @@ module cascade_delays (
     // When S=1: output = I1 (delayed path)
     always @(in or delay_in[0] or select[0]) begin
         if (select[0] == 1'b0) begin
-            // I0 path (direct): 28ps rise, 26ps fall
+            // I0 path (direct): 40ps rise, 37ps fall
             if (in == 1'b1)
-                delay_out[0] <= #0.028 in;
+                delay_out[0] <= #0.040 in;
             else
-                delay_out[0] <= #0.026 in;
+                delay_out[0] <= #0.037 in;
         end else begin
-            // I1 path (delayed): 27ps rise, 24ps fall
+            // I1 path (delayed): 38ps rise, 34ps fall
             if (delay_in[0] == 1'b1)
-                delay_out[0] <= #0.027 delay_in[0];
+                delay_out[0] <= #0.038 delay_in[0];
             else
-                delay_out[0] <= #0.024 delay_in[0];
+                delay_out[0] <= #0.034 delay_in[0];
         end
     end
     
     // Stage 1: Buffer delay + Mux delay
+    // Buffer: 23ps rise, 24ps fall
     always @(delay_out[0]) begin
-        delay_in[1] <= #0.016 delay_out[0];
+        if (delay_out[0] == 1'b1)
+            delay_in[1] <= #0.023 delay_out[0];
+        else
+            delay_in[1] <= #0.024 delay_out[0];
     end
     
     // Mux: I0=delay_out[0] (direct), I1=delay_in[1] (delayed), S=select[1]
     always @(delay_out[0] or delay_in[1] or select[1]) begin
         if (select[1] == 1'b0) begin
-            // I0 path (direct): 29ps rise, 28ps fall
+            // I0 path (direct): 42ps rise, 41ps fall
             if (delay_out[0] == 1'b1)
-                delay_out[1] <= #0.029 delay_out[0];
+                delay_out[1] <= #0.042 delay_out[0];
             else
-                delay_out[1] <= #0.028 delay_out[0];
+                delay_out[1] <= #0.041 delay_out[0];
         end else begin
-            // I1 path (delayed): 27ps rise, 24ps fall
+            // I1 path (delayed): 38ps rise, 34ps fall
             if (delay_in[1] == 1'b1)
-                delay_out[1] <= #0.027 delay_in[1];
+                delay_out[1] <= #0.038 delay_in[1];
             else
-                delay_out[1] <= #0.024 delay_in[1];
+                delay_out[1] <= #0.034 delay_in[1];
         end
     end
     
     // Stage 2: Buffer delay + Mux delay
+    // Buffer: 23ps rise, 24ps fall
     always @(delay_out[1]) begin
-        delay_in[2] <= #0.016 delay_out[1];
+        if (delay_out[1] == 1'b1)
+            delay_in[2] <= #0.023 delay_out[1];
+        else
+            delay_in[2] <= #0.024 delay_out[1];
     end
     
     always @(delay_out[1] or delay_in[2] or select[2]) begin
         if (select[2] == 1'b0) begin
-            // I0 path (direct): 29ps rise, 28ps fall
+            // I0 path (direct): 42ps rise, 41ps fall
             if (delay_out[1] == 1'b1)
-                delay_out[2] <= #0.029 delay_out[1];
+                delay_out[2] <= #0.042 delay_out[1];
             else
-                delay_out[2] <= #0.028 delay_out[1];
+                delay_out[2] <= #0.041 delay_out[1];
         end else begin
-            // I1 path (delayed): 27ps rise, 24ps fall
+            // I1 path (delayed): 38ps rise, 34ps fall
             if (delay_in[2] == 1'b1)
-                delay_out[2] <= #0.027 delay_in[2];
+                delay_out[2] <= #0.038 delay_in[2];
             else
-                delay_out[2] <= #0.024 delay_in[2];
+                delay_out[2] <= #0.034 delay_in[2];
         end
     end
     
-    // Stage 3: Buffer delay + Mux delay
+    // Stage 3: Buffer delay + Mux delay (последний каскад с другими задержками)
+    // Buffer: 23ps rise, 24ps fall
     always @(delay_out[2]) begin
-        delay_in[3] <= #0.016 delay_out[2];
+        if (delay_out[2] == 1'b1)
+            delay_in[3] <= #0.023 delay_out[2];
+        else
+            delay_in[3] <= #0.024 delay_out[2];
     end
     
+    // Mux: I0=delay_out[2] (direct), I1=delay_in[3] (delayed), S=select[3], Z=out
     always @(delay_out[2] or delay_in[3] or select[3]) begin
         if (select[3] == 1'b0) begin
-            // I0 path (direct): 29ps rise, 28ps fall
+            // I0 path (direct): 33ps rise, 34ps fall
             if (delay_out[2] == 1'b1)
-                delay_out[3] <= #0.029 delay_out[2];
+                out <= #0.033 delay_out[2];
             else
-                delay_out[3] <= #0.028 delay_out[2];
+                out <= #0.034 delay_out[2];
         end else begin
-            // I1 path (delayed): 27ps rise, 24ps fall
+            // I1 path (delayed): 29ps rise, 27ps fall
             if (delay_in[3] == 1'b1)
-                delay_out[3] <= #0.027 delay_in[3];
+                out <= #0.029 delay_in[3];
             else
-                delay_out[3] <= #0.024 delay_in[3];
-        end
-    end
-    
-    // Stage 4: Buffer delay + Mux delay
-    always @(delay_out[3]) begin
-        delay_in[4] <= #0.016 delay_out[3];
-    end
-    
-    always @(delay_out[3] or delay_in[4] or select[4]) begin
-        if (select[4] == 1'b0) begin
-            // I0 path (direct): 29ps rise, 28ps fall
-            if (delay_out[3] == 1'b1)
-                delay_out[4] <= #0.029 delay_out[3];
-            else
-                delay_out[4] <= #0.028 delay_out[3];
-        end else begin
-            // I1 path (delayed): 27ps rise, 24ps fall
-            if (delay_in[4] == 1'b1)
-                delay_out[4] <= #0.027 delay_in[4];
-            else
-                delay_out[4] <= #0.024 delay_in[4];
-        end
-    end
-    
-    // Stage 5: Buffer delay + Mux delay (последний каскад с другими задержками)
-    always @(delay_out[4]) begin
-        delay_in[5] <= #0.016 delay_out[4];
-    end
-    
-    // Mux: I0=delay_out[4] (direct), I1=delay_in[5] (delayed), S=select[5], Z=out
-    always @(delay_out[4] or delay_in[5] or select[5]) begin
-        if (select[5] == 1'b0) begin
-            // I0 path (direct): 22ps (both rise and fall)
-            out <= #0.022 delay_out[4];
-        end else begin
-            // I1 path (delayed): 20ps rise, 19ps fall
-            if (delay_in[5] == 1'b1)
-                out <= #0.020 delay_in[5];
-            else
-                out <= #0.019 delay_in[5];
+                out <= #0.027 delay_in[3];
         end
     end
 
