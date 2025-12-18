@@ -5,3 +5,5 @@ reports
 .project
 .log
 .library_mapping.xml
+tmp
+synth/out/

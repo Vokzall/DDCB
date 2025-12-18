@@ -1,4 +1,3 @@
-`timescale 1ns/1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: RISCY
 // Engineer: Muzalevskiy
@@ -6,8 +5,11 @@
 // Design Name:
 // Module Name: cascade_delays
 // Project Name: DDCB   
+
+`timescale 1ns/1ps
+
 module cascade_delays
-#(Nmbr_cascades = 8)
+#(Nmbr_cascades = 6)
 (
     input   logic                       in,
     input   logic [Nmbr_cascades-1:0]   select,
@@ -28,8 +30,8 @@ module cascade_delays
                         .Z(delay_in[0])
                     );
                     CLKMUX2V0_140P9T30R mux_inst (
-                        .I0(delay_in[0]),
-                        .I1(in),
+                        .I1(delay_in[0]),
+                        .I0(in),
                         .S(select[0]),
                         .Z(delay_out[0])
                     );
@@ -40,8 +42,8 @@ module cascade_delays
                         .Z(delay_in[g])
                     );
                     CLKMUX2V0_140P9T30R mux_inst (
-                        .I0(delay_in[g]),
-                        .I1(delay_out[g-1]),
+                        .I1(delay_in[g]),
+                        .I0(delay_out[g-1]),
                         .S(select[g]),
                         .Z(out)
                     );
@@ -52,8 +54,8 @@ module cascade_delays
                         .Z(delay_in[g])
                     );
                     CLKMUX2V0_140P9T30R mux_inst (
-                        .I0(delay_in[g]),
-                        .I1(delay_out[g-1]),
+                        .I1(delay_in[g]),
+                        .I0(delay_out[g-1]),
                         .S(select[g]),
                         .Z(delay_out[g])
                     );

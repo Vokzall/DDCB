@@ -27,8 +27,10 @@ set design(VERILOG_FILES) [list \
 
 # Library Files
 set design(LIB_FILES) [list \
-    "${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_ssg_v0p81_-40c_ccs.lib" \
-]
+    ${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c_basic.lib \
+] 
+
+
 
 # LEF Files
 set design(LEF_FILES) [list \

@@ -8,8 +8,11 @@ xrun \
 -access +rwc \
 -sv \
 ../sim/tb_wrapper.sv \
+../synth/out/cascade_delays_netlist.v \
 ../src/wrapper_delays.sv \
-../src/behave_cascade.sv \
 -dumpactivemacros \
 -clean \
-# -v ../DDK/verilog/* 
+-define GLS \
+-v ../DDK/verilog/* \
+-sdf_file ../synth/out/cascade_delays.sdf \
+-sdf_verbose
