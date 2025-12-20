@@ -13,53 +13,85 @@
 module cascade_delays
 #(Nmbr_cascades = `Nmbr_cascades)
 (
-    input   logic                       in,
-    input   logic [Nmbr_cascades-1:0]   select,
-    output  logic                       out
+    input   logic                           in,
+    input   logic [Nmbr_cascades*2-1:0]     select,
+    output  logic                           out
 );
 
     genvar g;
     generate
-        logic  delay_in [Nmbr_cascades-1:0];
-        logic  delay_out [Nmbr_cascades-2:0];
+        logic  delay_1buf [Nmbr_cascades-1:0];
+        logic  delay_2buf [Nmbr_cascades-1:0];
+        logic  mux_out [Nmbr_cascades-2:0];
         
 
         for (g = 0; g < Nmbr_cascades; g++) begin : DELAY_STAGES
             case(g)
                 0: begin
-                    BUFV1_140P9T30R delay_inst (
+                    // Первый буфер - общий для обеих линий задержки
+                    BUFV1_140P9T30R delay1_inst (
                         .I(in),
-                        .Z(delay_in[0])
+                        .Z(delay_1buf[0])
                     );
-                    CLKMUX2V0_140P9T30R mux_inst (
-                        .I1(delay_in[0]),
-                        .I0(in),
-                        .S(select[0]),
-                        .Z(delay_out[0])
+                    // Второй буфер - только для линии с 2 буферами
+                    BUFV1_140P9T30R delay2_inst (
+                        .I(delay_1buf[0]),
+                        .Z(delay_2buf[0])
+                    );
+                    
+                    // Трёхвходовой мультиплексор
+                    // I2 - прямая линия (без буферов)
+                    // I1 - линия с 1 буфером
+                    // I0 - линия с 2 буферами
+                    MUX3V4_140P9T30R mux_inst (
+                        .I0(delay_2buf[0]),
+                        .I1(delay_1buf[0]),
+                        .I2(in),
+                        .S0(select[g*2]),
+                        .S1(select[g*2+1]),
+                        .Z(mux_out[0])
                     );
                 end
                 Nmbr_cascades-1: begin
-                    BUFV1_140P9T30R delay_inst (
-                        .I(delay_out[g-1]),
-                        .Z(delay_in[g])
+                    // Первый буфер - общий для обеих линий задержки
+                    BUFV1_140P9T30R delay1_inst (
+                        .I(mux_out[g-1]),
+                        .Z(delay_1buf[g])
                     );
-                    CLKMUX2V0_140P9T30R mux_inst (
-                        .I1(delay_in[g]),
-                        .I0(delay_out[g-1]),
-                        .S(select[g]),
+                    // Второй буфер - только для линии с 2 буферами
+                    BUFV1_140P9T30R delay2_inst (
+                        .I(delay_1buf[g]),
+                        .Z(delay_2buf[g])
+                    );
+                    
+                    MUX3V4_140P9T30R mux_inst (
+                        .I0(delay_2buf[g]),
+                        .I1(delay_1buf[g]),
+                        .I2(mux_out[g-1]),
+                        .S0(select[g*2]),
+                        .S1(select[g*2+1]),
                         .Z(out)
                     );
                 end
                 default: begin
-                    BUFV1_140P9T30R delay_inst (
-                        .I(delay_out[g-1]),
-                        .Z(delay_in[g])
+                    // Первый буфер - общий для обеих линий задержки
+                    BUFV1_140P9T30R delay1_inst (
+                        .I(mux_out[g-1]),
+                        .Z(delay_1buf[g])
                     );
-                    CLKMUX2V0_140P9T30R mux_inst (
-                        .I1(delay_in[g]),
-                        .I0(delay_out[g-1]),
-                        .S(select[g]),
-                        .Z(delay_out[g])
+                    // Второй буфер - только для линии с 2 буферами
+                    BUFV1_140P9T30R delay2_inst (
+                        .I(delay_1buf[g]),
+                        .Z(delay_2buf[g])
+                    );
+                    
+                    MUX3V4_140P9T30R mux_inst (
+                        .I0(delay_2buf[g]),
+                        .I1(delay_1buf[g]),
+                        .I2(mux_out[g-1]),
+                        .S0(select[g*2]),
+                        .S1(select[g*2+1]),
+                        .Z(mux_out[g])
                     );
                 end
             endcase
