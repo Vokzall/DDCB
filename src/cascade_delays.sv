@@ -4,7 +4,14 @@
 // Create Date: 03/12/2025 16:15:00 PM
 // Design Name:
 // Module Name: cascade_delays
-// Project Name: DDCB   
+// Project Name: DDCB
+// Architecture: Ladder - single buffer at input, cascade of 2-input muxes
+//          ┌──[BUF]──┐
+//          │         │
+// in ──────┤         ├──[MUX0]──[MUX1]──[MUX2]──[MUX3]── out
+//          │         │     ▲       ▲       ▲       ▲
+//          └─────────┘     │       │       │       │
+//                       in─┴───────┴───────┴───────┘
 
 `timescale 1ns/1ps
 `ifndef Nmbr_cascades
@@ -18,53 +25,44 @@ module cascade_delays
     output  logic                       out
 );
 
+    logic in_buffered;
+    logic mux_out [Nmbr_cascades-1:0];
+    
+    // Single buffer at the input
+    BUFV1_140P9T30R input_buffer (
+        .I(in),
+        .Z(in_buffered)
+    );
+
     genvar g;
     generate
-        logic  delay_in [Nmbr_cascades-1:0];
-        logic  delay_out [Nmbr_cascades-2:0];
-        
-
         for (g = 0; g < Nmbr_cascades; g++) begin : DELAY_STAGES
-            case(g)
-                0: begin
-                    BUFV1_140P9T30R delay_inst (
-                        .I(in),
-                        .Z(delay_in[0])
-                    );
-                    CLKMUX2V0_140P9T30R mux_inst (
-                        .I1(delay_in[0]),
-                        .I0(in),
-                        .S(select[0]),
-                        .Z(delay_out[0])
-                    );
-                end
-                Nmbr_cascades-1: begin
-                    BUFV1_140P9T30R delay_inst (
-                        .I(delay_out[g-1]),
-                        .Z(delay_in[g])
-                    );
-                    CLKMUX2V0_140P9T30R mux_inst (
-                        .I1(delay_in[g]),
-                        .I0(delay_out[g-1]),
-                        .S(select[g]),
-                        .Z(out)
-                    );
-                end
-                default: begin
-                    BUFV1_140P9T30R delay_inst (
-                        .I(delay_out[g-1]),
-                        .Z(delay_in[g])
-                    );
-                    CLKMUX2V0_140P9T30R mux_inst (
-                        .I1(delay_in[g]),
-                        .I0(delay_out[g-1]),
-                        .S(select[g]),
-                        .Z(delay_out[g])
-                    );
-                end
-            endcase
+            if (g == 0) begin
+                // First mux: select between direct input and buffered input
+                CLKMUX2V0_140P9T30R mux_inst (
+                    .I0(in),
+                    .I1(in_buffered),
+                    .S(select[0]),
+                    .Z(mux_out[0])
+                );
+            end else if (g == Nmbr_cascades-1) begin
+                // Last mux: select between previous mux output and direct input
+                CLKMUX2V0_140P9T30R mux_inst (
+                    .I0(mux_out[g-1]),
+                    .I1(in),
+                    .S(select[g]),
+                    .Z(out)
+                );
+            end else begin
+                // Intermediate muxes: select between previous mux output and direct input
+                CLKMUX2V0_140P9T30R mux_inst (
+                    .I0(mux_out[g-1]),
+                    .I1(in),
+                    .S(select[g]),
+                    .Z(mux_out[g])
+                );
+            end
         end : DELAY_STAGES
-
     endgenerate
     
 endmodule
