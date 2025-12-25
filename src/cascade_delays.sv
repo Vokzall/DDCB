@@ -24,71 +24,49 @@ module cascade_delays
         logic  delay_2buf [Nmbr_cascades-1:0];
         logic  mux_out [Nmbr_cascades-2:0];
         
-
         for (g = 0; g < Nmbr_cascades; g++) begin : DELAY_STAGES
             case(g)
                 0: begin
-                    // Первый буфер - общий для обеих линий задержки
-                    BUFV1_140P9T30R delay1_inst (
-                        .I(in),
-                        .Z(delay_1buf[0])
-                    );
-                    // Второй буфер - только для линии с 2 буферами
-                    BUFV1_140P9T30R delay2_inst (
-                        .I(delay_1buf[0]),
-                        .Z(delay_2buf[0])
-                    );
+                    // Удалены буферы, оставлены только соединения
+                    assign delay_1buf[0] = in;
+                    assign delay_2buf[0] = delay_1buf[0];
                     
                     // Трёхвходовой мультиплексор
                     // I2 - прямая линия (без буферов)
                     // I1 - линия с 1 буфером
                     // I0 - линия с 2 буферами
                     MUX3V4_140P9T30R mux_inst (
-                        .I0(delay_2buf[0]),
+                        .I2(delay_2buf[0]),
                         .I1(delay_1buf[0]),
-                        .I2(in),
+                        .I0(in),
                         .S0(select[g*2]),
                         .S1(select[g*2+1]),
                         .Z(mux_out[0])
                     );
                 end
                 Nmbr_cascades-1: begin
-                    // Первый буфер - общий для обеих линий задержки
-                    BUFV1_140P9T30R delay1_inst (
-                        .I(mux_out[g-1]),
-                        .Z(delay_1buf[g])
-                    );
-                    // Второй буфер - только для линии с 2 буферами
-                    BUFV1_140P9T30R delay2_inst (
-                        .I(delay_1buf[g]),
-                        .Z(delay_2buf[g])
-                    );
+                    // Удалены буферы, оставлены только соединения
+                    assign delay_1buf[g] = mux_out[g-1];
+                    assign delay_2buf[g] = delay_1buf[g];
                     
                     MUX3V4_140P9T30R mux_inst (
-                        .I0(delay_2buf[g]),
+                        .I2(delay_2buf[g]),
                         .I1(delay_1buf[g]),
-                        .I2(mux_out[g-1]),
+                        .I0(mux_out[g-1]),
                         .S0(select[g*2]),
                         .S1(select[g*2+1]),
                         .Z(out)
                     );
                 end
                 default: begin
-                    // Первый буфер - общий для обеих линий задержки
-                    BUFV1_140P9T30R delay1_inst (
-                        .I(mux_out[g-1]),
-                        .Z(delay_1buf[g])
-                    );
-                    // Второй буфер - только для линии с 2 буферами
-                    BUFV1_140P9T30R delay2_inst (
-                        .I(delay_1buf[g]),
-                        .Z(delay_2buf[g])
-                    );
+                    // Удалены буферы, оставлены только соединения
+                    assign delay_1buf[g] = mux_out[g-1];
+                    assign delay_2buf[g] = delay_1buf[g];
                     
                     MUX3V4_140P9T30R mux_inst (
-                        .I0(delay_2buf[g]),
+                        .I2(delay_2buf[g]),
                         .I1(delay_1buf[g]),
-                        .I2(mux_out[g-1]),
+                        .I0(mux_out[g-1]),
                         .S0(select[g*2]),
                         .S1(select[g*2+1]),
                         .Z(mux_out[g])
