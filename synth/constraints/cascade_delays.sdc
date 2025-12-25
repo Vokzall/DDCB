@@ -13,6 +13,7 @@ set_dont_touch [get_cells -hier -filter {ref_name == BUFV1_140P9T30R}]
 
 # Protect all mux instances - MUST preserve them
 set_dont_touch [get_cells -hier -filter {ref_name == CLKMUX2V0_140P9T30R}]
+set_dont_touch [get_cells -hier -filter {ref_name == MUX3V4_140P9T30R}]
 
 puts "INFO: cascade_delays SDC loaded with full path protection"
 
