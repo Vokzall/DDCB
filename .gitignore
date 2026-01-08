@@ -7,3 +7,4 @@ reports
 .library_mapping.xml
 tmp
 synth/out/
+const_delay/genus*

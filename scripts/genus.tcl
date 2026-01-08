@@ -37,6 +37,15 @@ syn_generic
 source ../scripts/generate_table_delays.tcl
 
 # =====================================================
+# Step 2.1: Find Optimal Delay Sequences
+# =====================================================
+puts "\n=========================================="
+puts "Step 2.1: Finding Optimal Delay Sequences"
+puts "=========================================="
+exec python3 ../scripts/find_delay_sequence.py ../reports/delay_simplified.txt -n 16 --min-step 8 --max-step 30 -o ../reports/delay_sequence.csv | tee ../reports/sequence_analysis.txt
+puts "Sequence analysis saved to reports/sequence_analysis.txt"
+
+# =====================================================
 # Step 3: Save Design Checkpoint
 # =====================================================
 puts "\n=========================================="
