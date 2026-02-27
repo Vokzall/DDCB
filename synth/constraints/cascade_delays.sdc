@@ -13,8 +13,10 @@ set_dont_touch [get_cells -hier -filter {ref_name == BUFV1_140P9T30R}]
 
 # Protect all mux instances - MUST preserve them
 set_dont_touch [get_cells -hier -filter {ref_name == CLKMUX2V0_140P9T30R}]
-
+set_dont_touch [get_cells -hier -filter {ref_name == MUX3V4_140P9T30R}]
 puts "INFO: cascade_delays SDC loaded with full path protection"
 
-set_driving_cell -lib_cell BUFV1_140P9T30R [get_ports *]
-set_load -pin [get_ports -filter direction==out *] 1.0fF
+# Input slew 10ps on 'in' (matching mux_compare characterization)
+set_input_transition 0.01 -rise [get_ports in]
+set_input_transition 0.01 -fall [get_ports in]
+set_load 0.0019 [get_ports out]

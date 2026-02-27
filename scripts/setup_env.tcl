@@ -18,7 +18,7 @@ set design(SDC_PATH)        "../synth/constraints"
 set design(MMMC_PATH)       "./mmmc"
 set design(REPORT_DIR)      "../reports"
 set design(QRC_PATH)        "../DDK/tech/CMAX"
-set design(Nmbr_cascades)   4
+set design(Nmbr_cascades)   5
 
 # File Lists
 set design(VERILOG_FILES) [list \
@@ -28,7 +28,7 @@ set design(VERILOG_FILES) [list \
 # Library Files
 set design(LIB_FILES) [list \
     ${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c_basic.lib \
-] 
+]
 
 
 
