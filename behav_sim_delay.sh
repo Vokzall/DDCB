@@ -16,4 +16,4 @@ xrun \
     ../src/IDELAYE3.sv \
     ../sim/tb_odelay_idelay.sv \
     -clean \
-    -define Nmbr_cascades=7
+    -define Nmbr_cascades=8

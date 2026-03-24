@@ -29,6 +29,7 @@ module tb_odelay_idelay;
     real rise_delay, fall_delay;
     integer pass_num;
     integer step;
+    integer ce_pulse;
 
     // DUT: ODELAYE3
     ODELAYE3 #(.DELAY_VALUE(500)) u_odelay (
@@ -85,11 +86,11 @@ module tb_odelay_idelay;
         #20;
 
         // ============================================================
-        //  ODELAYE3: 2 full passes (0 -> 10 -> wrap -> 0 -> 10)
+        //  ODELAYE3: 2 full passes (16 select steps x 4 CE = 64 cnt)
         // ============================================================
         $display("");
         $display("============================================================");
-        $display("  ODELAYE3 - 2 full passes, CNT 0..10 (delay increases)");
+        $display("  ODELAYE3 - 2 full passes, 16 select steps (4 CE each)");
         $display("============================================================");
 
         odelay_inc = 1;
@@ -102,7 +103,7 @@ module tb_odelay_idelay;
             $display("-------|-----|--------|----------|--------");
 
             step = 0;
-            while (step < 11) begin
+            while (step < 16) begin
                 // Settle
                 #20;
 
@@ -126,11 +127,14 @@ module tb_odelay_idelay;
                 $display("  %4d | %3d |  %4d  | %8.0f | %8.0f",
                     step, u_odelay.cnt, odelay_cntval, rise_delay, fall_delay);
 
-                // Increment counter (CE=1, INC=1, on posedge CLK)
-                odelay_ce = 1;
-                @(posedge clk);
-                #1;
-                odelay_ce = 0;
+                // Advance counter by 4 CE pulses (to next select_idx)
+                for (ce_pulse = 0; ce_pulse < 4; ce_pulse = ce_pulse + 1) begin
+                    odelay_ce = 1;
+                    @(posedge clk);
+                    #1;
+                    odelay_ce = 0;
+                    #1;
+                end
 
                 step = step + 1;
             end
@@ -141,11 +145,11 @@ module tb_odelay_idelay;
         #20;
 
         // ============================================================
-        //  IDELAYE3: 2 full passes (0 -> 11 -> wrap -> 0 -> 11)
+        //  IDELAYE3: 2 full passes (16 select steps x 4 CE = 64 cnt)
         // ============================================================
         $display("");
         $display("============================================================");
-        $display("  IDELAYE3 - 2 full passes, CNT 0..11 (delay increases)");
+        $display("  IDELAYE3 - 2 full passes, 16 select steps (4 CE each)");
         $display("============================================================");
 
         // Reset IDELAYE3
@@ -165,7 +169,7 @@ module tb_odelay_idelay;
             $display("-------|-----|----------|--------");
 
             step = 0;
-            while (step < 12) begin
+            while (step < 16) begin
                 // Settle
                 #20;
 
@@ -189,11 +193,14 @@ module tb_odelay_idelay;
                 $display("  %4d | %3d | %8.0f | %8.0f",
                     step, u_idelay.cnt, rise_delay, fall_delay);
 
-                // Increment counter
-                idelay_ce = 1;
-                @(posedge clk);
-                #1;
-                idelay_ce = 0;
+                // Advance counter by 4 CE pulses (to next select_idx)
+                for (ce_pulse = 0; ce_pulse < 4; ce_pulse = ce_pulse + 1) begin
+                    idelay_ce = 1;
+                    @(posedge clk);
+                    #1;
+                    idelay_ce = 0;
+                    #1;
+                end
 
                 step = step + 1;
             end

@@ -13,7 +13,7 @@
 //
 //                                        +-----------------+
 //    IDATAIN -------------------------->| cascade_delays  |-----> DATAOUT
-//                                        | (select[9:0])   |
+//                                        | (select[15:0])  |
 //                                        +-----------------+
 //
 //  Control Logic:
@@ -21,19 +21,19 @@
 //
 //                  +-----+
 //    CLK --------->|     |
-//    RST --------->| CNT |---> cnt[3:0] (or cnt[8:0] in SLOW_COUNT mode)
+//    RST --------->| CNT |---> cnt[5:0] (0..63, 64 steps)
 //    CE  --------->|     |
 //    INC --------->|     |
 //    EN_VTC ------>+-----+
 //                     |
-//                     v
+//                     v  (select_idx = cnt / 4)
 //              +------------+
-//              | SELECT LUT |---> select[9:0]
+//              | SELECT LUT |---> select[15:0]
 //              +------------+
 //
-//  Architecture: 5-stage MUX3 cascade with buffer on I0
+//  Architecture: 8-stage MUX3 cascade with buffer on I0
 //    Per stage: BUFV1 -> I0, direct -> I1, direct -> I2
-//    select pair encoding (MSB-first in 10-bit literal):
+//    select pair encoding (MSB-first in 16-bit literal):
 //      "00" -> {S1,S0}=00 -> I0 (buf, slowest)
 //      "10" -> {S1,S0}=01 -> I1 (direct, medium)
 //      "01" -> {S1,S0}=10 -> I2 (direct, fastest)
@@ -65,49 +65,44 @@ module IDELAYE3 #(
     output wire DATAOUT
 );
 
-    // SELECT lookup table (12 entries, 10 bits each)
-    // CNT 0 = minimum delay (all I2), CNT 10 = maximum delay (all I0+buf)
-    // Delay increases with CNT increment. Entry 11 = duplicate of 10 (saturated).
+    // SELECT lookup table (16 entries, 16 bits each)
+    // CNT 0 = minimum delay (all I2), CNT 15 = stg7=I1 (near max)
+    // Counter counts 0..63, select changes every 4 counts (select_idx = cnt / 4)
 
-    localparam logic [9:0] SELECT_LUT [0:11] = '{
-        10'b01_01_01_01_01,  // CNT 0:  all I2 (min delay)  Rise=135, Fall=129
-        10'b01_01_01_01_10,  // CNT 1:  stg0=I1             Rise=148, Fall=143
-        10'b01_01_01_01_00,  // CNT 2:  stg0=I0+buf         Rise=168, Fall=164
-        10'b01_01_01_10_00,  // CNT 3:  +stg1=I1            Rise=180, Fall=178
-        10'b01_01_01_00_00,  // CNT 4:  +stg1=I0+buf        Rise=200, Fall=198
-        10'b01_01_10_00_00,  // CNT 5:  +stg2=I1            Rise=213, Fall=212
-        10'b01_01_00_00_00,  // CNT 6:  +stg2=I0+buf        Rise=233, Fall=233
-        10'b01_10_00_00_00,  // CNT 7:  +stg3=I1            Rise=245, Fall=247
-        10'b01_00_00_00_00,  // CNT 8:  +stg3=I0+buf        Rise=265, Fall=268
-        10'b10_00_00_00_00,  // CNT 9:  +stg4=I1            Rise=277, Fall=280
-        10'b00_00_00_00_00,  // CNT 10: all I0+buf (max)    Rise=296, Fall=300
-        10'b00_00_00_00_00   // CNT 11: same as 10 (saturated)
+    localparam logic [15:0] SELECT_LUT [0:15] = '{
+        16'b01_01_01_01_01_01_01_01,  // CNT 0:  all I2              Rise=218, Fall=208
+        16'b01_01_01_01_01_01_01_10,  // CNT 1:  stg0=I1             Rise=231, Fall=222
+        16'b01_01_01_01_01_01_01_00,  // CNT 2:  stg0=I0+buf         Rise=251, Fall=242
+        16'b01_01_01_01_01_01_10_00,  // CNT 3:  +stg1=I1            Rise=264, Fall=256
+        16'b01_01_01_01_01_01_00_00,  // CNT 4:  +stg1=I0+buf        Rise=283, Fall=277
+        16'b01_01_01_01_01_10_00_00,  // CNT 5:  +stg2=I1            Rise=296, Fall=291
+        16'b01_01_01_01_01_00_00_00,  // CNT 6:  +stg2=I0+buf        Rise=316, Fall=312
+        16'b01_01_01_01_10_00_00_00,  // CNT 7:  +stg3=I1            Rise=328, Fall=326
+        16'b01_01_01_01_00_00_00_00,  // CNT 8:  +stg3=I0+buf        Rise=348, Fall=347
+        16'b01_01_01_10_00_00_00_00,  // CNT 9:  +stg4=I1            Rise=361, Fall=360
+        16'b01_01_01_00_00_00_00_00,  // CNT 10: +stg4=I0+buf        Rise=381, Fall=381
+        16'b01_01_10_00_00_00_00_00,  // CNT 11: +stg5=I1            Rise=393, Fall=395
+        16'b01_01_00_00_00_00_00_00,  // CNT 12: +stg5=I0+buf        Rise=413, Fall=416
+        16'b01_10_00_00_00_00_00_00,  // CNT 13: +stg6=I1            Rise=426, Fall=430
+        16'b01_00_00_00_00_00_00_00,  // CNT 14: +stg6=I0+buf        Rise=445, Fall=451
+        16'b10_00_00_00_00_00_00_00   // CNT 15: +stg7=I1            Rise=457, Fall=463
     };
 
-`ifdef SLOW_COUNT
-    localparam CNT_WIDTH = 9;
-    localparam CNT_MAX = 511;
-`else
-    localparam CNT_WIDTH = 4;
-    localparam CNT_MAX = 11;
-`endif
+    localparam CNT_WIDTH = 6;
+    localparam CNT_MAX = 63;
 
     logic [CNT_WIDTH-1:0] cnt;
     logic [3:0] select_idx;
-    logic [9:0] select;
+    logic [15:0] select;
 
-    // Calculate select index from counter
-`ifdef SLOW_COUNT
-    assign select_idx = cnt[CNT_WIDTH-1:5];  // cnt / 32
-`else
-    assign select_idx = cnt;
-`endif
+    // select_idx = cnt / 4
+    assign select_idx = cnt[5:2];
 
-    // Lookup select value from table (clamp to 11)
-    assign select = SELECT_LUT[(select_idx > 4'd11) ? 4'd11 : select_idx];
+    // Lookup select value from table
+    assign select = SELECT_LUT[select_idx];
 
     // Cascade delays instantiation
-    cascade_delays #(.Nmbr_cascades(5)) cascade_delays_inst (
+    cascade_delays #(.Nmbr_cascades(8)) cascade_delays_inst (
         .in(IDATAIN),
         .select(select),
         .out(DATAOUT)
