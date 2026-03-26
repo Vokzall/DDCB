@@ -1,28 +1,36 @@
 `timescale 1ns/1ps
 
-// Define BALANCED macro for this test
-`define BALANCED
+`define Nmbr_cascades 11
 
-module tb_warpper();
+module tb_wrapper();
 
-    // Testbench parameters
     parameter CLK_PERIOD = 10;
-    parameter NMBR_CASCADES = 8;
-    
-    // DUT Signals
-    reg CE;
-    reg CLK;
-    reg EN_VTC;
-    reg IDATAIN;
-    reg INC;
-    reg RST;
-    wire DATAOUT;
-    
-    // Testbench variables
-    reg [31:0] test_count;
-    integer i;
-    
-    // Instantiate the DUT
+    parameter NUM_STEPS  = 32;   // 0..31
+    parameter INC_PER_STEP = 16; // CNTVALUEOUT[8:4] -> 16 increments per LUT step
+
+    // Common signals
+    reg        CE, CLK, EN_VTC, INC, RST;
+
+    // IDELAYE3 signals
+    reg        idatain;
+    wire       idelay_out;
+
+    // ODELAYE3 signals
+    reg        odatain;
+    wire       odelay_out;
+    wire [8:0] odelay_cntval;
+
+    // Timing measurement
+    realtime   t_rise_start, t_fall_start;
+    realtime   idelay_rise, idelay_fall;
+    realtime   odelay_rise, odelay_fall;
+
+    integer step;
+    integer inc_i;
+
+    // =========================================================
+    // DUT: IDELAYE3
+    // =========================================================
     IDELAYE3 #(
         .CASCADE("NONE"),
         .DELAY_FORMAT("TIME"),
@@ -34,96 +42,158 @@ module tb_warpper();
         .REFCLK_FREQUENCY(200.0),
         .SIM_DEVICE("ULTRASCALE"),
         .UPDATE_MODE("ASYNC")
-    ) dut (
-        .CE(CE),
-        .CLK(CLK),
-        .EN_VTC(EN_VTC),
-        .IDATAIN(IDATAIN),
-        .INC(INC),
-        .RST(RST),
-        .DATAOUT(DATAOUT)
+    ) u_idelay (
+        .CE      (CE),
+        .CLK     (CLK),
+        .EN_VTC  (EN_VTC),
+        .IDATAIN (idatain),
+        .INC     (INC),
+        .RST     (RST),
+        .DATAOUT (idelay_out)
     );
-    
-    // Clock generation
+
+    // =========================================================
+    // DUT: ODELAYE3
+    // =========================================================
+    ODELAYE3 #(
+        .CASCADE("NONE"),
+        .DELAY_FORMAT("TIME"),
+        .DELAY_TYPE("VARIABLE"),
+        .DELAY_VALUE(0),
+        .IS_CLK_INVERTED(0),
+        .IS_RST_INVERTED(0),
+        .REFCLK_FREQUENCY(200.0),
+        .SIM_DEVICE("ULTRASCALE"),
+        .UPDATE_MODE("ASYNC")
+    ) u_odelay (
+        .CE          (CE),
+        .CLK         (CLK),
+        .EN_VTC      (EN_VTC),
+        .ODATAIN     (odatain),
+        .INC         (INC),
+        .RST         (RST),
+        .DATAOUT     (odelay_out),
+        .CNTVALUEOUT (odelay_cntval)
+    );
+
+    // =========================================================
+    // Clock
+    // =========================================================
     initial begin
         CLK = 0;
         forever #(CLK_PERIOD/2) CLK = ~CLK;
     end
-        initial begin
-        // Аннотация SDF задержек
-        $sdf_annotate("../synth/out/cascade_delays.sdf", dut.cascade_delays_instance, , , "TYPICAL");
-        $display("SDF файл загружен: ../synth/out/cascade_delays.sdf");
-    end
-    // Main test sequence for BALANCED mode
+
+    // =========================================================
+    // SDF annotation
+    // =========================================================
     initial begin
-        // Initialize
-        test_count = 0;
-        CE = 0;
-        EN_VTC = 0;
-        IDATAIN = 0;
-        INC = 0;
-        RST = 0;
-        
-        #100;
-        
-        $display("[%0t] Starting BALANCED mode tests", $time);
-        
-        // Test 1: Verify reset sets select to 00000001
-        test_count = 1;
-        $display("[%0t] Test %0d: Reset to 00000001", $time, test_count);
+        $sdf_annotate("../synth/out/cascade_delays.sdf", u_idelay.cascade_delays_instance, , , "TYPICAL");
+        $sdf_annotate("../synth/out/cascade_delays.sdf", u_odelay.cascade_delays_netlist,   , , "TYPICAL");
+        $display("[%0t] SDF annotated", $time);
+    end
+
+    // =========================================================
+    // Main test
+    // =========================================================
+    initial begin
+        // Init
+        CE      = 0;
+        EN_VTC  = 0;
+        INC     = 1;
+        RST     = 0;
+        idatain = 0;
+        odatain = 0;
+
+        // Reset
+        #20;
         RST = 1;
-        #(CLK_PERIOD * 2);
+        #(CLK_PERIOD * 4);
         RST = 0;
-        #(CLK_PERIOD * 2);
-        
-        // Test 2: Increment in BALANCED mode
-        test_count = 2;
-        $display("[%0t] Test %0d: Increment sequence", $time, test_count);
-        CE = 1;
-        INC = 1;
-        
-        for (i = 0; i < 10; i = i + 1) begin
-            IDATAIN = $random;
-            #(CLK_PERIOD);
+        #(CLK_PERIOD * 6); // wait for reset synchronizer to release clk_gated
+
+        $display("=======================================================================");
+        $display(" Step | CNTVAL |   IDELAY Rise |  IDELAY Fall |  ODELAY Rise | ODELAY Fall");
+        $display("=======================================================================");
+
+        for (step = 0; step < NUM_STEPS; step = step + 1) begin
+
+            // --- Measure at current step ---
+
+            // Rising edge pulse: idatain/odatain 0->1
+            #(CLK_PERIOD * 2);
+            t_rise_start = $realtime;
+            idatain = 1;
+            odatain = 1;
+
+            @(posedge idelay_out);
+            idelay_rise = $realtime - t_rise_start;
+
+            // Need to also catch odelay rise - it may have already triggered
+            // Use fork-join for simultaneous measurement next time
+            // For now, measure separately with new pulse
+
+            // Reset inputs
+            #(CLK_PERIOD * 2);
+
+            // Falling edge pulse: 1->0
+            t_fall_start = $realtime;
+            idatain = 0;
+            odatain = 0;
+
+            @(negedge idelay_out);
+            idelay_fall = $realtime - t_fall_start;
+
+            #(CLK_PERIOD * 2);
+
+            // Measure ODELAY with separate pulse
+            t_rise_start = $realtime;
+            odatain = 1;
+            idatain = 1;
+
+            @(posedge odelay_out);
+            odelay_rise = $realtime - t_rise_start;
+
+            #(CLK_PERIOD * 2);
+
+            t_fall_start = $realtime;
+            odatain = 0;
+            idatain = 0;
+
+            @(negedge odelay_out);
+            odelay_fall = $realtime - t_fall_start;
+
+            #(CLK_PERIOD * 2);
+
+            $display("  %3d |  %4d  | %10.1f ps | %10.1f ps | %10.1f ps | %10.1f ps",
+                     step, odelay_cntval,
+                     idelay_rise * 1000.0, idelay_fall * 1000.0,
+                     odelay_rise * 1000.0, odelay_fall * 1000.0);
+
+            // --- Increment to next step (16 counter ticks per LUT step) ---
+            if (step < NUM_STEPS - 1) begin
+                CE  = 1;
+                INC = 1;
+                for (inc_i = 0; inc_i < INC_PER_STEP; inc_i = inc_i + 1) begin
+                    @(posedge CLK);
+                end
+                CE = 0;
+                #(CLK_PERIOD * 2);
+            end
         end
-        
-        CE = 0;
-        #(CLK_PERIOD * 2);
-        
-        // Test 3: Decrement in BALANCED mode
-        test_count = 3;
-        $display("[%0t] Test %0d: Decrement sequence", $time, test_count);
-        RST = 1;
-        #(CLK_PERIOD);
-        RST = 0;
-        #(CLK_PERIOD);
-        
-        CE = 1;
-        INC = 0;
-        
-        for (i = 0; i < 10; i = i + 1) begin
-            IDATAIN = $random;
-            #(CLK_PERIOD);
-        end
-        
-        CE = 0;
-        #(CLK_PERIOD * 2);
-        
-        // Summary
-        $display("\n[%0t] BALANCED mode tests completed", $time);
-        $display("Total tests run: %0d", test_count);
-        
+
+        $display("=======================================================================");
+        $display("[%0t] All %0d steps tested. Simulation complete.", $time, NUM_STEPS);
         #100;
         $finish;
     end
-    
-    // Waveform dumping
+
+    // =========================================================
+    // Waveform dump
+    // =========================================================
     initial begin
-        $dumpfile("tb_warpper_delays_balanced.vcd");
-        $dumpvars(0, tb_warpper);
+        $dumpfile("tb_wrapper.vcd");
+        $dumpvars(0, tb_wrapper);
     end
 
-        // Загрузка SDF файла
-
-    
 endmodule

@@ -2,14 +2,14 @@
 
 mkdir -p ./workdir
 cd ./workdir
-rm xmvlog_activemacros_*.v
+rm -f xmvlog_activemacros_*.v
 xrun \
--gui \
 -access +rwc \
 -sv \
 ../sim/tb_wrapper.sv \
-../src/wrapper_delays.sv \
-../src/behave_cascade.sv \
+../src/IDELAYE3.sv \
+../src/ODELAYE3.sv \
+../synth/out/cascade_delays_netlist.v \
 -dumpactivemacros \
 -clean \
-# -v ../DDK/verilog/* 
+-v ../DDK/verilog/*

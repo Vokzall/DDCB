@@ -9,7 +9,9 @@ xrun \
 -sv \
 ../sim/tb_wrapper.sv \
 ../synth/out/cascade_delays_netlist.v \
-../src/wrapper_delays.sv \
+../src/ODELAYE3.sv \
+../src/cascade_delays_netlist.sv \
+../src/IDELAYE3.sv \
 -dumpactivemacros \
 -clean \
 -define GLS \

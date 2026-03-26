@@ -8,7 +8,7 @@
 
 `timescale 1ns/1ps
 `ifndef Nmbr_cascades
-    `define Nmbr_cascades 4
+    `define Nmbr_cascades 11
 `endif
 module cascade_delays
 #(Nmbr_cascades = `Nmbr_cascades)
@@ -20,59 +20,59 @@ module cascade_delays
 
     genvar g;
     generate
-        logic  delay_1buf [Nmbr_cascades-1:0];
-        logic  delay_2buf [Nmbr_cascades-1:0];
-        logic  mux_out [Nmbr_cascades-2:0];
-        
+        logic  del1_out [Nmbr_cascades-1:0];
+        logic  del2_out [Nmbr_cascades-1:0];
+        logic  del3_out [Nmbr_cascades-1:0];
+        logic  mux_out  [Nmbr_cascades-2:0];
+
         for (g = 0; g < Nmbr_cascades; g++) begin : DELAY_STAGES
-            case(g)
-                0: begin
-                    // Удалены буферы, оставлены только соединения
-                    assign delay_1buf[0] = in;
-                    assign delay_2buf[0] = delay_1buf[0];
-                    
-                    // Трёхвходовой мультиплексор
-                    // I2 - прямая линия (без буферов)
-                    // I1 - линия с 1 буфером
-                    // I0 - линия с 2 буферами
-                    MUX3V4_140P9T30R mux_inst (
-                        .I2(delay_2buf[0]),
-                        .I1(delay_1buf[0]),
-                        .I0(in),
-                        .S0(select[g*2]),
-                        .S1(select[g*2+1]),
-                        .Z(mux_out[0])
-                    );
-                end
-                Nmbr_cascades-1: begin
-                    // Удалены буферы, оставлены только соединения
-                    assign delay_1buf[g] = mux_out[g-1];
-                    assign delay_2buf[g] = delay_1buf[g];
-                    
-                    MUX3V4_140P9T30R mux_inst (
-                        .I2(delay_2buf[g]),
-                        .I1(delay_1buf[g]),
-                        .I0(mux_out[g-1]),
-                        .S0(select[g*2]),
-                        .S1(select[g*2+1]),
-                        .Z(out)
-                    );
-                end
-                default: begin
-                    // Удалены буферы, оставлены только соединения
-                    assign delay_1buf[g] = mux_out[g-1];
-                    assign delay_2buf[g] = delay_1buf[g];
-                    
-                    MUX3V4_140P9T30R mux_inst (
-                        .I2(delay_2buf[g]),
-                        .I1(delay_1buf[g]),
-                        .I0(mux_out[g-1]),
-                        .S0(select[g*2]),
-                        .S1(select[g*2+1]),
-                        .Z(mux_out[g])
-                    );
-                end
-            endcase
+            logic stage_in;
+            if (g == 0) begin : genblk_in
+                assign stage_in = in;
+            end else begin : genblk_in
+                assign stage_in = mux_out[g-1];
+            end
+
+            // del1 — общий для I1 и I0
+            DEL1V4_140P9T30R del1_inst (
+                .I (stage_in),
+                .Z (del1_out[g])
+            );
+
+            // del2 — только для I0
+            DEL1V4_140P9T30R del2_inst (
+                .I (del1_out[g]),
+                .Z (del2_out[g])
+            );
+
+            // del3 — только для I0
+            DEL1V4_140P9T30R del3_inst (
+                .I (del2_out[g]),
+                .Z (del3_out[g])
+            );
+
+            // I2 - прямой провод                    (0 DEL1V4)
+            // I1 - del1_out                          (1 DEL1V4)
+            // I0 - del1_out -> del2_out -> del3_out  (3 DEL1V4)
+            if (g == Nmbr_cascades - 1) begin : genblk_mux
+                MUX3V4_140P9T30R mux_inst (
+                    .I2(stage_in),
+                    .I1(del1_out[g]),
+                    .I0(del3_out[g]),
+                    .S0(select[g*2]),
+                    .S1(select[g*2+1]),
+                    .Z(out)
+                );
+            end else begin : genblk_mux
+                MUX3V4_140P9T30R mux_inst (
+                    .I2(stage_in),
+                    .I1(del1_out[g]),
+                    .I0(del3_out[g]),
+                    .S0(select[g*2]),
+                    .S1(select[g*2+1]),
+                    .Z(mux_out[g])
+                );
+            end
         end : DELAY_STAGES
 
     endgenerate
