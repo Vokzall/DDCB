@@ -18,17 +18,30 @@ set design(SDC_PATH)        "../synth/constraints"
 set design(MMMC_PATH)       "./mmmc"
 set design(REPORT_DIR)      "../reports"
 set design(QRC_PATH)        "../DDK/tech/CMAX"
-set design(Nmbr_cascades)   11
+set design(Nmbr_cascades)   12
 
 # File Lists
 set design(VERILOG_FILES) [list \
     "${design(VERILOG_DIR)}/cascade_delays.sv" \
 ]
 
-# Library Files
+# Library Files — 3 corners
+set design(LIB_SSG) "${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_ssg_v0p81_-40c_ccs.lib"
+set design(LIB_TT)  "${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c_basic.lib"
+set design(LIB_FFG) "${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_ffg_v0p99_125c_ccs.lib"
+
 set design(LIB_FILES) [list \
-    ${design(LIB_PATH)}/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c_basic.lib \
-] 
+    $design(LIB_SSG) \
+    $design(LIB_TT) \
+    $design(LIB_FFG) \
+]
+
+# Corner names for generate_table_delays
+set design(CORNERS) [list \
+    [list "slow" "view_slow"] \
+    [list "typ"  "view_typ"] \
+    [list "fast" "view_fast"] \
+]
 
 
 

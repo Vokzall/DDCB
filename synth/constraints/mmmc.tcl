@@ -1,147 +1,47 @@
+# =====================================================
+# MMMC configuration for cascade_delays
+# 3 corners: SSG (slow), TT (typical), FFG (fast)
+# All use CMAX RC corner (only one available)
+# =====================================================
+
+# --- Library sets ---
 create_library_set \
-    -name SSG0v81m40 \
-    -timing " \
-        ../in/lib/scc28nhkcp_hsc30p140_rvt_ssg_v0p81_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc30p140_lvt_ssg_v0p81_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc30p140_ulvt_ssg_v0p81_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_hvt_ssg_v0p81_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_rvt_ssg_v0p81_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_lvt_ssg_v0p81_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_ulvt_ssg_v0p81_-40c_ccs.lib" \
-    -aocv " \
-        ../in/aocv/scc28nhkcp_hsc30p140_rvt_ssg_v0p81_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc30p140_lvt_ssg_v0p81_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc30p140_ulvt_ssg_v0p81_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_hvt_ssg_v0p81_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_rvt_ssg_v0p81_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_lvt_ssg_v0p81_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_ulvt_ssg_v0p81_-40c.aocv" \
-    -si " \
-        ../in/cdb/scc28nhkcp_hsc30p140_rvt_ssg_v0p81_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc30p140_lvt_ssg_v0p81_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc30p140_ulvt_ssg_v0p81_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_hvt_ssg_v0p81_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_rvt_ssg_v0p81_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_lvt_ssg_v0p81_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_ulvt_ssg_v0p81_-40c.cdb"
+    -name lib_ssg \
+    -timing "../DDK/libs/scc28nhkcp_hsc30p140_rvt_ssg_v0p81_-40c_ccs.lib"
+
 create_library_set \
-    -name FFG0v99m40 \
-    -timing " \
-        ../in/lib/scc28nhkcp_hsc30p140_rvt_ffg_v0p99_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc30p140_lvt_ffg_v0p99_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc30p140_ulvt_ffg_v0p99_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_hvt_ffg_v0p99_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_rvt_ffg_v0p99_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_lvt_ffg_v0p99_-40c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_ulvt_ffg_v0p99_-40c_ccs.lib" \
-    -aocv " \
-        ../in/aocv/scc28nhkcp_hsc30p140_rvt_ffg_v0p99_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc30p140_lvt_ffg_v0p99_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc30p140_ulvt_ffg_v0p99_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_hvt_ffg_v0p99_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_rvt_ffg_v0p99_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_lvt_ffg_v0p99_-40c.aocv \
-        ../in/aocv/scc28nhkcp_hsc35p140_ulvt_ffg_v0p99_-40c.aocv" \
-    -si " \
-        ../in/cdb/scc28nhkcp_hsc30p140_rvt_ffg_v0p99_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc30p140_lvt_ffg_v0p99_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc30p140_ulvt_ffg_v0p99_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_hvt_ffg_v0p99_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_rvt_ffg_v0p99_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_lvt_ffg_v0p99_-40c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_ulvt_ffg_v0p99_-40c.cdb"
+    -name lib_tt \
+    -timing "../DDK/libs/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c_basic.lib"
+
 create_library_set \
-    -name TT0v9025 \
-    -timing " \
-        ../in/lib/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc30p140_lvt_tt_v0p9_25c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc30p140_ulvt_tt_v0p9_25c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_hvt_tt_v0p9_25c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_rvt_tt_v0p9_25c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_lvt_tt_v0p9_25c_ccs.lib \
-        ../in/lib/scc28nhkcp_hsc35p140_ulvt_tt_v0p9_25c_ccs.lib" \
-    -si " \
-        ../in/cdb/scc28nhkcp_hsc30p140_rvt_tt_v0p9_25c.cdb \
-        ../in/cdb/scc28nhkcp_hsc30p140_lvt_tt_v0p9_25c.cdb \
-        ../in/cdb/scc28nhkcp_hsc30p140_ulvt_tt_v0p9_25c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_hvt_tt_v0p9_25c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_rvt_tt_v0p9_25c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_lvt_tt_v0p9_25c.cdb \
-        ../in/cdb/scc28nhkcp_hsc35p140_ulvt_tt_v0p9_25c.cdb"
+    -name lib_ffg \
+    -timing "../DDK/libs/scc28nhkcp_hsc30p140_rvt_ffg_v0p99_125c_ccs.lib"
 
-create_timing_condition \
-    -name func_SSG0v81m40cw_s \
-    -library_sets "SSG0v81m40"
-create_timing_condition \
-    -name func_SSG0v81m40cw_h \
-    -library_sets "SSG0v81m40"
-create_timing_condition \
-    -name func_FFG0v99m40cb_h \
-    -library_sets "FFG0v99m40"
-create_timing_condition \
-    -name func_TT0v9025ct_s \
-    -library_sets "TT0v9025"
-create_timing_condition \
-    -name func_TT0v9025ct_h \
-    -library_sets "TT0v9025"
+# --- Timing conditions ---
+create_timing_condition -name tc_ssg -library_sets lib_ssg
+create_timing_condition -name tc_tt  -library_sets lib_tt
+create_timing_condition -name tc_ffg -library_sets lib_ffg
 
+# --- RC corner (only CMAX available) ---
 create_rc_corner \
-    -name cw_m40 \
-    -temperature -40 \
-    -qrc_tech /auto/foundry/SMIC/20250725/SMIC_CCIQRC_28HKCPlusLG_0918_1P10M_8Ic_1TMc_1MTTc_ALPA2_V1.0_REV5_0/rulefiles/CMAX/qrcTechFile
-create_rc_corner \
-    -name cb_m40 \
-    -temperature -40 \
-    -qrc_tech /auto/foundry/SMIC/20250725/SMIC_CCIQRC_28HKCPlusLG_0918_1P10M_8Ic_1TMc_1MTTc_ALPA2_V1.0_REV5_0/rulefiles/CMIN/qrcTechFile
-create_rc_corner \
-    -name ct_25 \
-    -temperature 25 \
-    -qrc_tech /auto/foundry/SMIC/20250725/SMIC_CCIQRC_28HKCPlusLG_0918_1P10M_8Ic_1TMc_1MTTc_ALPA2_V1.0_REV5_0/rulefiles/TYPICAL/qrcTechFile
+    -name rc_cmax \
+    -qrc_tech "../DDK/tech/CMAX/qrcTechFile"
 
-create_delay_corner \
-    -name func_SSG0v81m40cw_s \
-    -timing_condition func_SSG0v81m40cw_s \
-    -rc_corner cw_m40
-create_delay_corner \
-    -name func_SSG0v81m40cw_h \
-    -timing_condition func_SSG0v81m40cw_h \
-    -rc_corner cw_m40
-create_delay_corner \
-    -name func_FFG0v99m40cb_h \
-    -timing_condition func_FFG0v99m40cb_h \
-    -rc_corner cb_m40
-create_delay_corner \
-    -name func_TT0v9025ct_s \
-    -timing_condition func_TT0v9025ct_s \
-    -rc_corner ct_25
-create_delay_corner \
-    -name func_TT0v9025ct_h \
-    -timing_condition func_TT0v9025ct_h \
-    -rc_corner ct_25
+# --- Delay corners ---
+create_delay_corner -name dc_slow -timing_condition tc_ssg -rc_corner rc_cmax
+create_delay_corner -name dc_typ  -timing_condition tc_tt  -rc_corner rc_cmax
+create_delay_corner -name dc_fast -timing_condition tc_ffg -rc_corner rc_cmax
 
+# --- Constraint mode ---
 create_constraint_mode \
-    -name func \
-    -sdc_files "../in/sdc/func_clocks.sdc ../in/sdc/func_io.sdc"
+    -name cm_func \
+    -sdc_files "../synth/constraints/cascade_delays.sdc"
 
-create_analysis_view \
-    -name func_SSG0v81m40cw_s \
-    -constraint_mode func \
-    -delay_corner func_SSG0v81m40cw_s
-create_analysis_view \
-    -name func_SSG0v81m40cw_h \
-    -constraint_mode func \
-    -delay_corner func_SSG0v81m40cw_h
-create_analysis_view \
-    -name func_FFG0v99m40cb_h \
-    -constraint_mode func \
-    -delay_corner func_FFG0v99m40cb_h
-create_analysis_view \
-    -name func_TT0v9025ct_s \
-    -constraint_mode func \
-    -delay_corner func_TT0v9025ct_s
-create_analysis_view \
-    -name func_TT0v9025ct_h \
-    -constraint_mode func \
-    -delay_corner func_TT0v9025ct_h
+# --- Analysis views ---
+create_analysis_view -name view_slow -constraint_mode cm_func -delay_corner dc_slow
+create_analysis_view -name view_typ  -constraint_mode cm_func -delay_corner dc_typ
+create_analysis_view -name view_fast -constraint_mode cm_func -delay_corner dc_fast
 
-set_analysis_view -setup " func_SSG0v81m40cw_s func_TT0v9025ct_s" -hold " func_SSG0v81m40cw_s func_TT0v9025ct_s  func_SSG0v81m40cw_h func_FFG0v99m40cb_h func_TT0v9025ct_h "
+set_analysis_view \
+    -setup {view_slow view_typ view_fast} \
+    -hold  {view_fast}

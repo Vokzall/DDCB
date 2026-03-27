@@ -6,7 +6,7 @@
 // Module Name: IDELAYE3
 // Project Name: DDCB
 
-`define Nmbr_cascades 11
+`define Nmbr_cascades 12
 `timescale 1ns/1ps
 
 module IDELAYE3 #(
@@ -33,7 +33,7 @@ module IDELAYE3 #(
 );
 logic [8:0] CNTVALUEOUT;
 `ifndef Nmbr_cascades
-    `define Nmbr_cascades 11
+    `define Nmbr_cascades 12
 `endif
 
     logic [`Nmbr_cascades*2-1:0] select;
@@ -46,40 +46,40 @@ logic [8:0] CNTVALUEOUT;
 
     // MUX3 truth: S1=0,S0=0->I0(3DEL) | S1=0,S0=1->I1(1DEL) | S1=1,S0=0->I2(0DEL)
     // Select encoding per stage: 00=3DEL, 01=1DEL, 10=0DEL
-    // Pattern: MSB(stage10) ... LSB(stage0), 2 bits per stage
-    localparam logic [21:0] SELECT_LUT [0:31] = '{
-        22'b1010101010101010101010,  // step  0:  0 DEL — all I2
-        22'b1010101010101010101001,  // step  1:  1 DEL
-        22'b1010101010101010100101,  // step  2:  2 DEL
-        22'b1010101010101010101000,  // step  3:  3 DEL
-        22'b1010101010101010100100,  // step  4:  4 DEL
-        22'b1010101010101010010100,  // step  5:  5 DEL
-        22'b1010101010101010100000,  // step  6:  6 DEL
-        22'b1010101010101010010000,  // step  7:  7 DEL
-        22'b1010101010101001010000,  // step  8:  8 DEL
-        22'b1010101010101010000000,  // step  9:  9 DEL
-        22'b1010101010101001000000,  // step 10: 10 DEL
-        22'b1010101010100101000000,  // step 11: 11 DEL
-        22'b1010101010101000000000,  // step 12: 12 DEL
-        22'b1010101010100100000000,  // step 13: 13 DEL
-        22'b1010101010010100000000,  // step 14: 14 DEL
-        22'b1010101010100000000000,  // step 15: 15 DEL
-        22'b1010101010010000000000,  // step 16: 16 DEL
-        22'b1010101001010000000000,  // step 17: 17 DEL
-        22'b1010101010000000000000,  // step 18: 18 DEL
-        22'b1010101001000000000000,  // step 19: 19 DEL
-        22'b1010100101000000000000,  // step 20: 20 DEL
-        22'b1010101000000000000000,  // step 21: 21 DEL
-        22'b1010100100000000000000,  // step 22: 22 DEL
-        22'b1010010100000000000000,  // step 23: 23 DEL
-        22'b1010100000000000000000,  // step 24: 24 DEL
-        22'b1010010000000000000000,  // step 25: 25 DEL
-        22'b1001010000000000000000,  // step 26: 26 DEL
-        22'b1010000000000000000000,  // step 27: 27 DEL
-        22'b1001000000000000000000,  // step 28: 28 DEL
-        22'b0101000000000000000000,  // step 29: 29 DEL
-        22'b1000000000000000000000,  // step 30: 30 DEL
-        22'b0100000000000000000000   // step 31: 31 DEL
+    // Pattern: MSB(stage11) ... LSB(stage0), 2 bits per stage
+    localparam logic [23:0] SELECT_LUT [0:31] = '{
+        24'b101010101010101010101010,  // step  0: DEL= 0  typ_avg=306 ps
+        24'b101010101010101010101001,  // step  1: DEL= 1  typ_avg=352 ps
+        24'b011010101010101010101001,  // step  2: DEL= 2  typ_avg=399 ps
+        24'b010110101010101010101001,  // step  3: DEL= 3  typ_avg=446 ps
+        24'b000110101010101010101001,  // step  4: DEL= 5  typ_avg=511 ps
+        24'b100101010101101010101010,  // step  5: DEL= 5  typ_avg=542 ps
+        24'b100101010101011010101010,  // step  6: DEL= 6  typ_avg=588 ps
+        24'b000001101010101010101001,  // step  7: DEL= 8  typ_avg=623 ps
+        24'b000001011010101010101001,  // step  8: DEL= 9  typ_avg=670 ps
+        24'b000001010110101010101001,  // step  9: DEL=10  typ_avg=717 ps
+        24'b000101010101011010101001,  // step 10: DEL=10  typ_avg=746 ps
+        24'b100000000101011010101010,  // step 11: DEL=12  typ_avg=784 ps
+        24'b100000010101010101101010,  // step 12: DEL=12  typ_avg=812 ps
+        24'b010101010101010101010101,  // step 13: DEL=12  typ_avg=869 ps
+        24'b100000000101010101011010,  // step 14: DEL=15  typ_avg=924 ps
+        24'b100000000000010110101010,  // step 15: DEL=17  typ_avg=960 ps
+        24'b100000000001010101011010,  // step 16: DEL=17  typ_avg=990 ps
+        24'b100000000000000110101010,  // step 17: DEL=19  typ_avg=1026 ps
+        24'b000000000101010101011001,  // step 18: DEL=19  typ_avg=1082 ps
+        24'b000000000101010101010101,  // step 19: DEL=20  typ_avg=1129 ps
+        24'b000000000000010101101001,  // step 20: DEL=22  typ_avg=1165 ps
+        24'b000000000001010101010101,  // step 21: DEL=22  typ_avg=1194 ps
+        24'b000000000000000101101001,  // step 22: DEL=24  typ_avg=1230 ps
+        24'b000000000000010101010101,  // step 23: DEL=24  typ_avg=1259 ps
+        24'b000000000000000001101001,  // step 24: DEL=26  typ_avg=1295 ps
+        24'b000000000000000101010101,  // step 25: DEL=26  typ_avg=1324 ps
+        24'b000000000000000001010101,  // step 26: DEL=28  typ_avg=1389 ps
+        24'b100000000000000000000010,  // step 27: DEL=30  typ_avg=1426 ps
+        24'b000000000000000000000110,  // step 28: DEL=31  typ_avg=1473 ps
+        24'b000000000000000000000010,  // step 29: DEL=33  typ_avg=1538 ps
+        24'b000000000000000000000001,  // step 30: DEL=34  typ_avg=1584 ps
+        24'b000000000000000000000000   // step 31: DEL=36  typ_avg=1649 ps
     };
 
 // Clock and reset synchronization logic

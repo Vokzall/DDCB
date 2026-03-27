@@ -4,11 +4,11 @@
 // Create Date: 03/12/2025 16:15:00 PM
 // Design Name:
 // Module Name: cascade_delays
-// Project Name: DDCB   
+// Project Name: DDCB
 
 `timescale 1ns/1ps
 `ifndef Nmbr_cascades
-    `define Nmbr_cascades 11
+    `define Nmbr_cascades 12
 `endif
 module cascade_delays
 #(Nmbr_cascades = `Nmbr_cascades)
@@ -33,27 +33,27 @@ module cascade_delays
                 assign stage_in = mux_out[g-1];
             end
 
-            // del1 — общий для I1 и I0
+            // del1 — shared for I1 and I0
             DEL1V4_140P9T30R del1_inst (
                 .I (stage_in),
                 .Z (del1_out[g])
             );
 
-            // del2 — только для I0
+            // del2 — only for I0
             DEL1V4_140P9T30R del2_inst (
                 .I (del1_out[g]),
                 .Z (del2_out[g])
             );
 
-            // del3 — только для I0
+            // del3 — only for I0
             DEL1V4_140P9T30R del3_inst (
                 .I (del2_out[g]),
                 .Z (del3_out[g])
             );
 
-            // I2 - прямой провод                    (0 DEL1V4)
-            // I1 - del1_out                          (1 DEL1V4)
-            // I0 - del1_out -> del2_out -> del3_out  (3 DEL1V4)
+            // I2 - direct wire                          (0 DEL)
+            // I1 - del1_out                             (1 DEL)
+            // I0 - del1_out -> del2_out -> del3_out     (3 DEL)
             if (g == Nmbr_cascades - 1) begin : genblk_mux
                 MUX3V4_140P9T30R mux_inst (
                     .I2(stage_in),
@@ -76,5 +76,5 @@ module cascade_delays
         end : DELAY_STAGES
 
     endgenerate
-    
+
 endmodule
