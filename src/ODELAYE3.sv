@@ -123,7 +123,7 @@ module ODELAYE3 #(
     
     always_ff @(posedge clk_gated, posedge rst_int) begin : COUNTER_PROC
         if (rst_int) begin 
-            CNTVALUEOUT <= (DELAY_VALUE == 500) ? 9'd192 : 9'd0;  // step 12: typ_avg=812 ps (~306+500)
+            CNTVALUEOUT <= (DELAY_VALUE == 312) ? 9'd112 : 9'd0;  // step 7: typ_avg=623 ps (~306+312)
         end
         else if (CE && !EN_VTC) begin 
             CNTVALUEOUT <= (INC) ? CNTVALUEOUT + 9'd1 : CNTVALUEOUT - 9'd1;

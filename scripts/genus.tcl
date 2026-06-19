@@ -54,4 +54,4 @@ foreach corner $design(CORNERS) {
 
 puts "\nSynthesis complete. Run Python analysis:"
 puts "  python3 ../parsing/sdf_analysis.py"
-gui_show
+if {![info exists ::no_gui]} { gui_show }

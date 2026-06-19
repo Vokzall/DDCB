@@ -11,9 +11,10 @@
 if [ "$1" == "const_delay" ]; then
     N_CASCADES=${2:-5}
     echo "=== Synthesizing const_delay with $N_CASCADES cascades ==="
-    cd const_delay
+    mkdir -p workdir
+    cd workdir
     rm -f ./*log* ./*cmd*
-    genus -f ./genus.tcl -log ./genus.log -execute "set Nbr_const_delay_cascades $N_CASCADES"
+    genus -f ../scripts/genus.tcl -log ./genus.log -execute "set ::no_gui 1; set ::override_design const_delay; set ::override_cascades $N_CASCADES"
 
 elif [ "$1" == "idelay" ]; then
     echo "=== Synthesizing IDELAYE3 wrapper ==="

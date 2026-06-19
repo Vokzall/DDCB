@@ -1,7 +1,7 @@
 # =====================================================
 # Script: generate_table_delays.tcl
 # Purpose: Multi-corner delay analysis for programmable delay line
-#          with 3-input MUX and DEL1V4_140P9T30R delay cells
+#          with 3-input MUX and DEL2V0_140P9T30R delay cells
 #
 # Phase 1: Measure ALL (a,b) configs at 3 corners (slow/typ/fast)
 # Phase 2: Select 32 uniformly-spaced steps (based on typical avg)
@@ -55,8 +55,8 @@ if {[llength $in_port] == 0 || [llength $out_port] == 0} {
 }
 
 set all_muxes [get_db insts -if {.base_cell.base_name == MUX3V4_140P9T30R}]
-set all_dels  [get_db insts -if {.base_cell.base_name == DEL1V4_140P9T30R}]
-puts "Found [llength $all_muxes] MUX3 instances, [llength $all_dels] DEL1V4 instances"
+set all_dels  [get_db insts -if {.base_cell.base_name == DEL2V0_140P9T30R}]
+puts "Found [llength $all_muxes] MUX3 instances, [llength $all_dels] DEL2V0 instances"
 
 # =====================================================
 # Build through-pin list for a given (a, b) pair
@@ -117,7 +117,7 @@ proc extract_delay {report_text} {
         if {[regexp {Data Path:-\s+(\d+)} $line match delay]} {
             set total_delay $delay
         }
-        if {[regexp {DEL1V4_140P9T30R\s+\d+\s+[\d.]+\s+\d+\s+(\d+)\s+\d+} $line match delay]} {
+        if {[regexp {DEL2V0_140P9T30R\s+\d+\s+[\d.]+\s+\d+\s+(\d+)\s+\d+} $line match delay]} {
             incr del_count
             set del_delay [expr {$del_delay + $delay}]
         }
@@ -341,8 +341,8 @@ puts $tbl_fh "Date:           [clock format [clock seconds] -format {%Y-%m-%d %H
 puts $tbl_fh "=================================================================================================="
 puts $tbl_fh ""
 puts $tbl_fh "Architecture per stage:"
-puts $tbl_fh "  I0 - 3x DEL1V4_140P9T30R (3 DEL) : select=00"
-puts $tbl_fh "  I1 - 1x DEL1V4_140P9T30R (1 DEL) : select=01"
+puts $tbl_fh "  I0 - 3x DEL2V0_140P9T30R (3 DEL) : select=00"
+puts $tbl_fh "  I1 - 1x DEL2V0_140P9T30R (1 DEL) : select=01"
 puts $tbl_fh "  I2 - Direct wire         (0 DEL) : select=10"
 puts $tbl_fh "  (del1 is shared between I1 and I0 paths)"
 puts $tbl_fh ""

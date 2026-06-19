@@ -3,7 +3,13 @@
 # =============================================
 
 # Design Parameters
-set design(DESIGN)          "cascade_delays"
+# Default design is cascade_delays; ::override_design (set from run_genus.sh)
+# can switch to the const_delay reference line.
+if {[info exists ::override_design]} {
+    set design(DESIGN)      $::override_design
+} else {
+    set design(DESIGN)      "cascade_delays"
+}
 set design(TECHNOLOGY)      "tsmc28nm"
 set design(CLK_NAME)        "clk"
 set design(CLK_PERIOD)      "1.0"    ;# ns
@@ -18,11 +24,15 @@ set design(SDC_PATH)        "../synth/constraints"
 set design(MMMC_PATH)       "./mmmc"
 set design(REPORT_DIR)      "../reports"
 set design(QRC_PATH)        "../DDK/tech/CMAX"
-set design(Nmbr_cascades)   12
+if {[info exists ::override_cascades]} {
+    set design(Nmbr_cascades)   $::override_cascades
+} else {
+    set design(Nmbr_cascades)   11
+}
 
 # File Lists
 set design(VERILOG_FILES) [list \
-    "${design(VERILOG_DIR)}/cascade_delays.sv" \
+    "${design(VERILOG_DIR)}/${design(DESIGN)}.sv" \
 ]
 
 # Library Files — 3 corners
@@ -52,7 +62,7 @@ set design(LEF_FILES) [list \
 ]
 
 # SDC File
-set design(SDC_FILE) "${design(SDC_PATH)}/cascade_delays.sdc"
+set design(SDC_FILE) "${design(SDC_PATH)}/${design(DESIGN)}.sdc"
 
 # MMMC File
 set design(MMMC_FILE) "${design(MMMC_PATH)}/view_definition.tcl"

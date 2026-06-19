@@ -35,7 +35,7 @@ create_delay_corner -name dc_fast -timing_condition tc_ffg -rc_corner rc_cmax
 # --- Constraint mode ---
 create_constraint_mode \
     -name cm_func \
-    -sdc_files "../synth/constraints/cascade_delays.sdc"
+    -sdc_files "$design(SDC_FILE)"
 
 # --- Analysis views ---
 create_analysis_view -name view_slow -constraint_mode cm_func -delay_corner dc_slow

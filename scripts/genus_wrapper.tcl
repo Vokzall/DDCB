@@ -63,4 +63,4 @@ write_sdf > ../synth/out/$design(DESIGN).sdf
 write_sdc > ../synth/out/$design(DESIGN).sdc
 
 puts "\nDone: $design(DESIGN) synthesis complete."
-gui_show
+if {![info exists ::no_gui]} { gui_show }

@@ -9,7 +9,7 @@ create_clock -name virt_clk -period 10.000 -waveform {0.000 5.000}
 # set_case_analysis -reset [get_ports select*]
 
 # Protect all delay instances - MUST preserve them
-set_dont_touch [get_cells -hier -filter {ref_name == DEL1V4_140P9T30R}]
+set_dont_touch [get_cells -hier -filter {ref_name == DEL2V0_140P9T30R}]
 
 # Protect all mux instances - MUST preserve them
 set_dont_touch [get_cells -hier -filter {ref_name == MUX3V4_140P9T30R}]
